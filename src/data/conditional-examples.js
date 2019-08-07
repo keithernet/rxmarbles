@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import {every} from 'rxjs/operators';
+import {defaultIfEmpty, every, sequenceEqual} from 'rxjs/operators';
 
 /* t = time, c = content */
 export const conditionalExamples = {
@@ -7,7 +7,7 @@ export const conditionalExamples = {
     label: 'defaultIfEmpty(true)',
     inputs: [[99]],
     apply: function(inputs) {
-      return inputs[0].defaultIfEmpty(true);
+      return inputs[0].pipe(defaultIfEmpty(true));
     }
   },
 
@@ -28,9 +28,9 @@ export const conditionalExamples = {
       [{t:2, c:1}, {t:20, c:2}, {t:40, c:3}, {t:70, c:4}, {t:77, c:5}, 85]
     ],
     apply: function(inputs) {
-      return inputs[0].sequenceEqual(inputs[1],
+      return inputs[0].pipe(sequenceEqual(inputs[1],
         (x, y) => (x.content === y.content)
-      );
+      ));
     }
   },
 }

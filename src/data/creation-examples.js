@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { from, interval, of, timer } from 'rxjs';
 
 export const creationExamples = {
   // Incomplete
@@ -6,7 +6,7 @@ export const creationExamples = {
     label: 'Observable.from([10, 20, 30]).delayWhen(x => timer(x))',
     inputs: [],
     apply: function(inputs, scheduler) {
-      return Observable.from([10, 20, 30]).delayWhen(x => Observable.timer(x, scheduler));
+      return from([10, 20, 30]).delayWhen(x => timer(x, scheduler));
     }
   },
 
@@ -14,7 +14,7 @@ export const creationExamples = {
     label: 'Observable.interval(10)',
     inputs: [],
     apply: function(inputs, scheduler) {
-      return Observable.interval(10, scheduler);
+      return interval(10, scheduler);
     }
   },
 
@@ -22,7 +22,7 @@ export const creationExamples = {
     label: 'Observable.of(1)',
     inputs: [],
     apply: function() {
-      return Observable.of(1);
+      return of(1);
     }
   },
 
@@ -30,7 +30,7 @@ export const creationExamples = {
     label: 'Observable.timer(30, 10)',
     inputs: [],
     apply: function(inputs, scheduler) {
-      return Observable.timer(30, 10, scheduler);
+      return timer(30, 10, scheduler);
     }
   },
 };

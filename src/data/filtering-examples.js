@@ -1,4 +1,26 @@
-import { Observable } from 'rxjs';
+import {first, timer} from 'rxjs';
+import {
+  debounce,
+  debounceTime,
+  distinct,
+  distinctUntilChanged,
+  elementAt,
+  filter,
+  find,
+  findIndex,
+  ignoreElements,
+  last,
+  sample,
+  skip,
+  skipUntil,
+  skipWhile,
+  take,
+  takeLast,
+  takeUntil,
+  takeWhile,
+  throttle,
+  throttleTime
+} from 'rxjs/operators';
 
 /* t = time, c = content */
 export const filteringExamples = {
@@ -8,7 +30,7 @@ export const filteringExamples = {
       [{t:0, c:1}, {t:26, c:2}, {t:34, c:3}, {t:40, c:4}, {t:45, c:5}, {t:79, c:6}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].debounceTime(10, scheduler);
+      return inputs[0].pipe(debounceTime(10, scheduler));
     }
   },
 
@@ -18,8 +40,9 @@ export const filteringExamples = {
       [{t:0, c:1}, {t:26, c:2}, {t:34, c:1}, {t:40, c:1}, {t:45, c:2}, {t:79, c:1}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].debounce(x =>
-        Observable.timer(Number(x.content) * 10, 1000, scheduler)
+      return inputs[0].pipe(
+        debounce(x =>
+        timer(Number(x.content) * 10, 1000, scheduler))
       );
     }
   },
@@ -30,7 +53,7 @@ export const filteringExamples = {
       [{t:5, c:1}, {t:20, c:2}, {t:35, c:2}, {t:60, c:1}, {t:70, c:3}]
     ],
     apply: function(inputs) {
-      return inputs[0].distinct(x => x.content);
+      return inputs[0].pipe(distinct(x => x.content));
     }
   },
 
@@ -40,7 +63,7 @@ export const filteringExamples = {
       [{t:5, c:1}, {t:20, c:2}, {t:35, c:2}, {t:60, c:1}, {t:70, c:3}]
     ],
     apply: function(inputs) {
-      return inputs[0].distinctUntilChanged(undefined, x => x.content);
+      return inputs[0].pipe(distinctUntilChanged(undefined, x => x.content));
     }
   },
 
@@ -50,7 +73,7 @@ export const filteringExamples = {
       [{t:30, c:1}, {t:40, c:2}, {t:65, c:3}, {t:75, c:4}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].elementAt(2);
+      return inputs[0].pipe(elementAt(2));
     }
   },
 
@@ -60,7 +83,7 @@ export const filteringExamples = {
       [{t:5, c:2}, {t:15, c:30}, {t:25, c:22}, {t:35, c:5}, {t:45, c:60}, {t:55, c:1}]
     ],
     apply: function(inputs) {
-      return inputs[0].filter(x => (x.content > 10));
+      return inputs[0].pipe(filter(x => (x.content > 10)));
     }
   },
 
@@ -70,7 +93,7 @@ export const filteringExamples = {
       [{t:5, c:2}, {t:15, c:30}, {t:25, c:22}, {t:35, c:5}, {t:45, c:60}, {t:55, c:1}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].find(x => (x.content > 10));
+      return inputs[0].pipe(find(x => (x.content > 10)));
     }
   },
 
@@ -80,7 +103,7 @@ export const filteringExamples = {
       [{t:5, c:2}, {t:15, c:30}, {t:25, c:22}, {t:35, c:5}, {t:45, c:60}, {t:55, c:1}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].findIndex(({ content }) => (content > 10));
+      return inputs[0].pipe(findIndex(({ content }) => (content > 10)));
     }
   },
 
@@ -90,7 +113,7 @@ export const filteringExamples = {
       [{t:30, c:1}, {t:40, c:2}, {t:65, c:3}, {t:75, c:4}, 85]
     ],
     apply: function(inputs) {
-      return inputs[0].first();
+      return inputs[0].pipe(first());
     }
   },
 
@@ -100,7 +123,7 @@ export const filteringExamples = {
       [{t:20, c:'A'}, {t:40, c:'B'}, {t:50, c:'C'}, {t:75, c:'D'}, 90]
     ],
     apply: function(inputs) {
-      return inputs[0].ignoreElements();
+      return inputs[0].pipe(ignoreElements());
     }
   },
 
@@ -110,7 +133,7 @@ export const filteringExamples = {
       [{t:30, c:1}, {t:40, c:2}, {t:65, c:3}, {t:75, c:4}, 85]
     ],
     apply: function(inputs) {
-      return inputs[0].last();
+      return inputs[0].pipe(last());
     }
   },
 
@@ -121,7 +144,7 @@ export const filteringExamples = {
       [{t:10, c:'A'}, {t:25, c:'B'}, {t:33, c:'C'}, {t:70, c:'D'}, 90]
     ],
     apply: function(inputs) {
-      return inputs[0].sample(inputs[1]);
+      return inputs[0].pipe(sample(inputs[1]));
     }
   },
 
@@ -131,7 +154,7 @@ export const filteringExamples = {
       [{t:30, c:1}, {t:40, c:2}, {t:65, c:3}, {t:75, c:4}]
     ],
     apply: function(inputs) {
-      return inputs[0].skip(2);
+      return inputs[0].pipe(skip(2));
     }
   },
 
@@ -142,7 +165,7 @@ export const filteringExamples = {
       [{t:45, c:0}, {t:73, c:0}]
     ],
     apply: function(inputs) {
-      return inputs[0].skipUntil(inputs[1]);
+      return inputs[0].pipe(skipUntil(inputs[1]));
     }
   },
 
@@ -152,7 +175,7 @@ export const filteringExamples = {
       [{t:5, c:1}, {t:20, c:3}, {t:35, c:6}, {t:50, c:4}, {t:65, c:7}, {t:80, c:2}]
     ],
     apply: function(inputs) {
-      return inputs[0].skipWhile(x => x.content < 5);
+      return inputs[0].pipe(skipWhile(x => x.content < 5));
     }
   },
 
@@ -161,8 +184,9 @@ export const filteringExamples = {
     inputs: [
       [{t:30, c:1}, {t:40, c:2}, {t:65, c:3}, {t:75, c:4}, 85]
     ],
+    //TODO: scheduler in take?
     apply: function(inputs, scheduler) {
-      return inputs[0].take(2, scheduler);
+      return inputs[0].pipe(take(2));
     }
   },
 
@@ -172,7 +196,7 @@ export const filteringExamples = {
       [{t:30, c:1}, {t:40, c:2}, {t:65, c:3}, {t:75, c:4}, 85]
     ],
     apply: function(inputs) {
-      return inputs[0].takeLast(1);
+      return inputs[0].pipe(takeLast(1));
     }
   },
 
@@ -183,7 +207,7 @@ export const filteringExamples = {
       [{t:45, c:0}, {t:73, c:0}]
     ],
     apply: function(inputs) {
-      return inputs[0].takeUntil(inputs[1]);
+      return inputs[0].pipe(takeUntil(inputs[1]));
     }
   },
 
@@ -193,7 +217,7 @@ export const filteringExamples = {
       [{t:5, c:1}, {t:20, c:3}, {t:35, c:6}, {t:50, c:4}, {t:65, c:7}, {t:80, c:2}]
     ],
     apply: function(inputs) {
-      return inputs[0].takeWhile(x => x.content < 5);
+      return inputs[0].pipe(takeWhile(x => x.content < 5));
     }
   },
 
@@ -203,9 +227,9 @@ export const filteringExamples = {
       [{t:0, c:1}, {t:26, c:2}, {t:34, c:1}, {t:40, c:1}, {t:45, c:2}, {t:79, c:1}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].throttle(x =>
-        Observable.timer(Number(x.content) * 10, 1000, scheduler)
-      );
+      return inputs[0].pipe(throttle(x =>
+        timer(Number(x.content) * 10, 1000, scheduler)
+      ));
     }
   },
 
@@ -215,7 +239,7 @@ export const filteringExamples = {
       [{t:0 ,c:'A'}, {t:8 ,c:'B'}, {t:16 ,c:'C'}, {t:40 ,c:'D'}, {t:55 ,c:'E'}, {t:60 ,c:'F'}, {t:70 ,c:'G'}]
     ],
     apply: function(inputs, scheduler) {
-      return inputs[0].throttleTime(25, scheduler);
+      return inputs[0].pipe(throttleTime(25, scheduler));
     }
   },
 }
