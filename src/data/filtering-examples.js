@@ -4,12 +4,12 @@ import {
   debounceTime,
   distinct,
   distinctUntilChanged,
-  elementAt,
+  elementAt, exhaustMap,
   filter,
   find,
   findIndex,
   ignoreElements,
-  last,
+  last, pluck,
   sample,
   skip,
   skipUntil,
@@ -21,6 +21,7 @@ import {
   throttle,
   throttleTime
 } from 'rxjs/operators';
+import {s} from "@cycle/dom";
 
 /* t = time, c = content */
 export const filteringExamples = {
@@ -74,6 +75,17 @@ export const filteringExamples = {
     ],
     apply: function(inputs, scheduler) {
       return inputs[0].pipe(elementAt(2));
+    }
+  },
+
+  exhaustMap: {
+    label: 'exhaustMap',
+    inputs: [
+        [{t:0, c:1}, {t:10, c:2}, {t:15, c:2}, {t:35, c:3}, {t:65, c:4}],
+        [{t:5, c:'a'}, {t:25, c:'b'}, 25]
+    ],
+    apply: function(inputs, scheduler) {
+      return inputs[0].pipe(exhaustMap(() => inputs[1].pipe(pluck('content'))));
     }
   },
 
