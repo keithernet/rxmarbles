@@ -1,12 +1,14 @@
-import {Observable, ReplaySubject, Subject, VirtualTimeScheduler} from 'rxjs';
+import {Observable, ReplaySubject, Subject, timer, VirtualTimeScheduler} from 'rxjs';
 import {assoc, curry, merge} from 'ramda';
 
 import {calculateNotificationContentHash} from './sandbox-utils';
 import {
   debounceTime,
   mergeAll,
+  map,
   observeOn,
   publishReplay,
+  reduce,
   refCount,
   takeUntil,
   timestamp,
@@ -21,7 +23,7 @@ const toVTStream = curry(function _toVTStream(scheduler, data){
       scheduler.schedule(() => observer.next(item), item.time));
   });
   return marbleStreams$.pipe(
-    takeUntil(Observable.timer(data.end.time + 1, scheduler)));
+    takeUntil(timer(data.end.time + 1, scheduler)));
 });
 
 function outputStreamToMarbles$(scheduler, stream){
@@ -65,7 +67,7 @@ export function createOutputStream$(example$, inputStores$){
       const inputStreams = inputStores.map(toVTStream(vtScheduler));
       const outputStream = example.apply(inputStreams, vtScheduler).pipe(
         // add 0.01 or else things at exactly MAX_TIME will cut off
-        takeUntil(Observable.timer(MAX_TIME + 0.01, vtScheduler)));
+        takeUntil(timer(MAX_TIME + 0.01, vtScheduler)));
 
       return outputStreamToMarbles$(vtScheduler, outputStream);
     }),

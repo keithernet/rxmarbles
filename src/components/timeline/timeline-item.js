@@ -1,5 +1,16 @@
-import {fromEvent, Observable} from 'rxjs';
+import {fromEvent, Observable, merge, never} from 'rxjs';
 import { add, compose, path, multiply, max, min } from 'ramda';
+import {
+  distinctUntilChanged,
+  map,
+  mapTo,
+  pluck,
+  publishReplay,
+  startWith,
+  switchMap,
+  takeUntil,
+  withLatestFrom
+} from "rxjs/operators";
 
 const mouseMove$ = fromEvent(document, 'mousemove');
 const mouseUp$ = fromEvent(document, 'mouseup');
@@ -13,50 +24,52 @@ function getPercentageFn(element) {
 
 function getPausable$(pause$, obsv$) {
   return pause$
-    .switchMap(pause => pause ? obsv$ : Observable.never());
+    .pipe(switchMap(pause => pause ? obsv$ : never()));
 }
 
 function intent(elementClass, DOMSource, isDraggable$) {
   const element = DOMSource.select('.' + elementClass);
 
-  const startHighlight$ = element.events('mouseenter').mapTo(true);
-  const stopHighlight$ = element.events('mouseleave').mapTo(false);
+  const startHighlight$ = element.events('mouseenter').pipe(mapTo(true));
+  const stopHighlight$ = element.events('mouseleave').pipe(mapTo(false));
   const isHighlighted$ = getPausable$(
-    isDraggable$, Observable.merge(startHighlight$, stopHighlight$))
-    .startWith(false)
-    .publishReplay(1).refCount();
+    isDraggable$, merge(startHighlight$, stopHighlight$)).pipe(
+    startWith(false),
+    publishReplay(1)).refCount();
 
-  const timeChange$ = element.events('mousedown')
-    .map(path(['currentTarget', 'parentElement']))
-    .map(getPercentageFn)
-    .switchMap(getPercentage =>
-      mouseMove$.takeUntil(mouseUp$)
-        .pluck('pageX')
-        .map(getPercentage)
-        .distinctUntilChanged()
-    );
+  const timeChange$ = element.events('mousedown').pipe(
+    map(path(['currentTarget', 'parentElement'])),
+    map(getPercentageFn),
+    switchMap(getPercentage =>
+      mouseMove$.pipe(
+        takeUntil(mouseUp$),
+        pluck('pageX'),
+        map(getPercentage),
+        distinctUntilChanged())
+    ));
 
   return { timeChange$, isHighlighted$ };
 }
 
 function model(props$, timeSource$, timeChange$, isDraggable$) {
-  const restrictedTimeChange$ = getPausable$(isDraggable$, timeChange$)
-    .map(max(0))
-    .map(min(100));
+  const restrictedTimeChange$ = getPausable$(isDraggable$, timeChange$).pipe(
+    map(max(0)),
+    map(min(100)));
 
-  const minChange$ = props$.pluck('minTime')
-    .distinctUntilChanged()
-    .withLatestFrom(timeSource$, max);
+  const minChange$ = props$.pipe(
+    pluck('minTime'),
+    distinctUntilChanged(),
+    withLatestFrom(timeSource$, max));
 
-  const maxChange$ = props$.pluck('maxTime')
-    .distinctUntilChanged()
-    .withLatestFrom(timeSource$, min);
+  const maxChange$ = props$.pipe(pluck('maxTime'),
+    distinctUntilChanged(),
+    withLatestFrom(timeSource$, min));
 
-  return Observable.merge(
+  return merge(
     // order matters
-    timeSource$, restrictedTimeChange$, minChange$, maxChange$)
-    .distinctUntilChanged()
-    .publishReplay(1).refCount();
+    timeSource$, restrictedTimeChange$, minChange$, maxChange$).pipe(
+    distinctUntilChanged(),
+    publishReplay(1)).refCount();
 }
 
 export function timelineItem(elementClass, view, sources) {

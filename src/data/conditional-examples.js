@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import {every} from 'rxjs/operators';
 
 /* t = time, c = content */
 export const conditionalExamples = {
@@ -16,7 +17,7 @@ export const conditionalExamples = {
       [{t:5, c:1}, {t:15, c:2}, {t:25, c:3}, {t:35, c:4}, {t:65, c:5}, 80]
     ],
     apply: function(inputs) {
-      return inputs[0].every(({ content }) => (content < 10));
+      return inputs[0].pipe(every(({ content }) => (content < 10)));
     }
   },
 

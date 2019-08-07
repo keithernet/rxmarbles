@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, merge } from 'rxjs';
 
 /* t = time, c = content */
 export const combinationExamples = {
@@ -33,7 +33,7 @@ export const combinationExamples = {
       [{t:37, c:1}, {t:68, c:1}]
     ],
     apply: function(inputs) {
-      return Observable.merge(...inputs);
+      return merge(...inputs);
     },
   },
 

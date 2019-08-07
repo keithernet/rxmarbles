@@ -1,6 +1,7 @@
 import { svg } from '@cycle/dom';
 import isolate from '@cycle/isolate';
-import { Observable } from 'rxjs';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { STROKE_WIDTH } from './timeline-constants';
 import { timelineItem } from './timeline-item';
@@ -11,8 +12,8 @@ const baseHeight = 1.8;
 const tallHeight = 3.2;
 
 function view(sources, value$) {
-  return Observable.combineLatest(sources.props, value$)
-    .map(([{isTall}, value]) => {
+  return combineLatest(sources.props, value$).pipe(
+    map(([{isTall}, value]) => {
       const height = isTall ? tallHeight : baseHeight;
       return svg.line({
         attrs: {
@@ -26,7 +27,7 @@ function view(sources, value$) {
           cursor: 'ew-resize'
         },
       });
-    });
+    }));
 }
 
 function OriginalEndMarker(sources) {
