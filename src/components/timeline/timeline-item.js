@@ -1,8 +1,8 @@
-import { Observable } from 'rxjs';
+import {fromEvent, Observable} from 'rxjs';
 import { add, compose, path, multiply, max, min } from 'ramda';
 
-const mouseMove$ = Observable.fromEvent(document, 'mousemove');
-const mouseUp$ = Observable.fromEvent(document, 'mouseup');
+const mouseMove$ = fromEvent(document, 'mousemove');
+const mouseUp$ = fromEvent(document, 'mouseup');
 
 function getPercentageFn(element) {
   const { width, left } = element.getBoundingClientRect();

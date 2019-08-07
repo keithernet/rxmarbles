@@ -1,13 +1,14 @@
-import { Observable } from 'rxjs';
+import {fromEvent,} from 'rxjs';
+import {distinctUntilChanged, map, startWith} from "rxjs/operators";
 
 
 const DEFAULT_EXAMPLE = 'merge';
 
-export function appModel() {
-  return Observable.fromEvent(window, 'hashchange')
-    .map(hashEvent => hashEvent.target.location.hash.replace('#', ''))
-    .startWith(window.location.hash.replace('#', ''))
-    .map(route => route || DEFAULT_EXAMPLE)
-    .distinctUntilChanged()
-    .map(route => ({ route, inputs: undefined }));
+export function appModel(){
+  return fromEvent(window, 'hashchange').pipe(
+    map(hashEvent => hashEvent.target.location.hash.replace('#', '')),
+    startWith(window.location.hash.replace('#', '')),
+    map(route => route || DEFAULT_EXAMPLE),
+    distinctUntilChanged(),
+    map(route => ({route, inputs: undefined})));
 };
